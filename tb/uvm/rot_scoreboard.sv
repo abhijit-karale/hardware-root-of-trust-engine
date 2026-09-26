@@ -72,8 +72,12 @@ class rot_scoreboard extends uvm_scoreboard;
 
         for (int i = 0; i < item.expected_data.size(); i++) begin
             if (item.expected_data[i] !== item.actual_data[i]) begin
-                `uvm_error("BYTE_MISMATCH", $sformatf("Byte [%0d] Expected=0x%02x, Actual=0x%02x",
-                                                      i, item.expected_data[i], item.actual_data[i]))
+                string exp_str = "";
+                string act_str = "";
+                foreach (item.expected_data[k]) exp_str = {exp_str, $sformatf("%02x", item.expected_data[k])};
+                foreach (item.actual_data[k])   act_str = {act_str, $sformatf("%02x", item.actual_data[k])};
+                `uvm_error("BYTE_MISMATCH", $sformatf("Mismatch at byte [%0d]: Expected=0x%02x, Actual=0x%02x\nExpected Full: %s\nActual Full:   %s",
+                                                      i, item.expected_data[i], item.actual_data[i], exp_str, act_str))
                 mismatch = 1'b1;
                 break;
             end
@@ -102,13 +106,13 @@ class rot_scoreboard extends uvm_scoreboard;
     virtual function void report_phase(uvm_phase phase);
         super.report_phase(phase);
         `uvm_info("SCOREBOARD_SUMMARY", 
-                  $sformatf("\n==================================================\n" +
-                            "   RoT UVM Scoreboard Verification Summary\n" +
-                            "   Total Checks: %0d\n" +
-                            "   Passed Checks: %0d\n" +
-                            "   Failed Checks: %0d\n" +
-                            "   Status: %s\n" +
-                            "==================================================",
+                  $sformatf({"\n==================================================\n",
+                             "   RoT UVM Scoreboard Verification Summary\n",
+                             "   Total Checks: %0d\n",
+                             "   Passed Checks: %0d\n",
+                             "   Failed Checks: %0d\n",
+                             "   Status: %s\n",
+                             "=================================================="},
                             total_checks, pass_count, fail_count,
                             (fail_count == 0) ? "ALL TESTS PASSED" : "FAILED"),
                   UVM_NONE)

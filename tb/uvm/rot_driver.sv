@@ -225,7 +225,7 @@ class rot_driver extends uvm_driver #(rot_seq_item);
                 // Read 256-bit digest (8 words)
                 for (int w = 0; w < 8; w++) begin
                     apb_read(12'h090 + 4*w, rdata);
-                    item.actual_digest_256[32*w +: 32] = rdata;
+                    item.actual_digest_256[255 - 32*w -: 32] = rdata;
                 end
             end
             default: ;
