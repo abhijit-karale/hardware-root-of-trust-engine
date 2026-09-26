@@ -74,8 +74,8 @@ class rot_driver extends uvm_driver #(rot_seq_item);
 
         while (!vif.drv_cb.pready) @(vif.drv_cb);
 
-        data = vif.drv_cb.prdata;
         @(vif.drv_cb);
+        data = vif.drv_cb.prdata;
         vif.drv_cb.psel    <= 1'b0;
         vif.drv_cb.penable <= 1'b0;
     endtask
