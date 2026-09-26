@@ -1,0 +1,61 @@
+# ==============================================================================
+# Company: Hardware Root-of-Trust (RoT) Silicon Lab
+# Engineer: Abhijit Karale
+# File: synth.ys
+# Description: Yosys Synthesis Script for Hardware Root-of-Trust (RoT) Engine
+#              Target: SkyWater 130nm @ 200 MHz
+# ==============================================================================
+
+# 1. Read SystemVerilog Source Files
+read_verilog -sv ../rtl/aes/aes_sbox.sv
+read_verilog -sv ../rtl/aes/aes_inv_sbox.sv
+read_verilog -sv ../rtl/aes/aes_rcon.sv
+read_verilog -sv ../rtl/aes/aes_round.sv
+read_verilog -sv ../rtl/aes/aes_inv_round.sv
+read_verilog -sv ../rtl/aes/aes_key_expand_256.sv
+read_verilog -sv ../rtl/aes/aes_core.sv
+read_verilog -sv ../rtl/ghash/gf_mul128.sv
+read_verilog -sv ../rtl/ghash/ghash_core.sv
+read_verilog -sv ../rtl/gcm/aes_gcm_top.sv
+read_verilog -sv ../rtl/sha3/keccak_round_constants.sv
+read_verilog -sv ../rtl/sha3/keccak_round.sv
+read_verilog -sv ../rtl/sha3/keccak_f1600.sv
+read_verilog -sv ../rtl/sha3/sha3_core.sv
+read_verilog -sv ../rtl/rot_top.sv
+
+# 2. Elaborate Hierarchy
+hierarchy -check -top rot_top
+
+# 3. High-Level Synthesis Passes
+proc
+flatten
+opt_expr
+opt_clean
+check
+
+# 4. FSM and Memory Mapping
+fsm
+opt
+wreduce
+peepopt
+opt_clean
+memory
+opt
+
+# 5. Technology Mapping (Generic or SkyWater 130nm)
+techmap
+opt
+
+# 6. DFF and Logic Gate Mapping
+dfflegalize -cell $_DFF_P_ 01
+abc -g cmos2,gates
+
+# 7. Clean and Optimization
+opt_clean -purge
+
+# 8. Area and Cell Count Statistics
+stat -width
+
+# 9. Write Synthesized Netlist
+write_verilog -noattr rot_top_synth.v
+write_json rot_top_synth.json

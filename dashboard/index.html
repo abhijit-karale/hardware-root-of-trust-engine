@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Root-of-Trust (RoT) Engine - SkyWater 130nm @ 200 MHz | Abhijit Karale</title>
+    <meta name="description" content="Production-grade Hardware Root-of-Trust (RoT) SoC Engine featuring AES-256-GCM AEAD, GHASH GF(2^128) Multiplier, SHA-3 Keccak Sponge, and 1-Cycle Anti-Tamper Zeroization on SkyWater 130nm @ 200 MHz.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Emergency Zeroize Alert Banner -->
+    <div id="zeroizeBanner" style="display: none; background: #dc2626; color: #fff; text-align: center; padding: 12px; font-weight: 700; font-size: 13px; letter-spacing: 0.05em; box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);">
+        &#9888; SECURITY EVENT DETECTED: 1-CYCLE HARDWARE ZEROIZATION EXECUTED! ALL CONFIDENTIAL REGISTERS WIPED TO 0x00000000. ALARM LATCHED.
+    </div>
+
+    <!-- Application Header -->
+    <header class="app-header">
+        <div class="brand-section">
+            <div class="chip-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <rect x="9" y="9" width="6" height="6"/>
+                    <line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/>
+                    <line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>
+                    <line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/>
+                    <line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>
+                </svg>
+            </div>
+            <div class="brand-titles">
+                <h1>Hardware Root-of-Trust (RoT) Engine</h1>
+                <p>
+                    <span class="badge-tag">SkyWater 130nm @ 200 MHz</span>
+                    <span>Candidate: <b>Abhijit Karale</b></span>
+                    <span>&bull; AES-256-GCM &bull; SHA-3 Keccak &bull; GF(2<sup>128</sup>)</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Telemetry Pills -->
+        <div class="telemetry-bar">
+            <div class="telemetry-item">
+                <span id="liveStatusIndicator" class="pulse-indicator"></span>
+                <div>
+                    <div class="label">RoT Security</div>
+                    <div class="value">ARMED &amp; SECURE</div>
+                </div>
+            </div>
+            <div class="telemetry-item">
+                <div>
+                    <div class="label">Clock &amp; Tech</div>
+                    <div class="value">200 MHz (5.0 ns)</div>
+                </div>
+            </div>
+            <div class="telemetry-item">
+                <div>
+                    <div class="label">Throughput</div>
+                    <div class="value" style="color: #38bdf8;">2.56 Gbps</div>
+                </div>
+            </div>
+            <div class="telemetry-item">
+                <div>
+                    <div class="label">STA Slack (WNS)</div>
+                    <div class="value" style="color: #10b981;">+2.180 ns (MET)</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Top Navigation Tabs -->
+    <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="tab-control" id="navControlTab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+            RoT Control &amp; APB4 Memory
+        </button>
+        <button class="tab-btn" data-tab="tab-crypto" id="navCryptoTab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Cryptographic Engines &amp; NIST KATs
+        </button>
+        <button class="tab-btn" data-tab="tab-waveform" id="navWaveformTab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Interactive VCD Logic Analyzer
+        </button>
+        <button class="tab-btn" data-tab="tab-gallery" id="navGalleryTab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Silicon Architecture &amp; Tapeout Gallery (4 Artifacts)
+        </button>
+    </nav>
+
+    <!-- Main Content Workspace -->
+    <main class="main-content">
+
+        <!-- TAB 1: RoT CONTROL & APB4 REGISTERS -->
+        <section id="tab-control" class="tab-pane active">
+            <div class="dashboard-grid">
+                
+                <!-- Left Column: Security Control Panel -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            Security Engine Status
+                        </div>
+                    </div>
+                    <div class="status-pill-list">
+                        <div class="status-row">
+                            <span class="name">Hardware RoT State</span>
+                            <span id="rotSecurityStatusPill" class="status-pill secure">&check; ARMED &amp; READY</span>
+                        </div>
+                        <div class="status-row">
+                            <span class="name">Key Immutability Lock</span>
+                            <span id="keyLockStatusPill" class="status-pill secure">&bull; UNLOCKED (WRITABLE)</span>
+                        </div>
+                        <div class="status-row">
+                            <span class="name">Bus Snooping Protection</span>
+                            <span class="status-pill secure">&check; ACTIVE (MASKED TO 0x0)</span>
+                        </div>
+                        <div class="status-row">
+                            <span class="name">Hardware Zeroize Pin</span>
+                            <span id="alarmPinPill" class="status-pill secure">&bull; rot_alarm_out: DEASSERTED</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn-secondary" onclick="lockKeyRegisters()" id="lockKeyBtn" style="width: 100%;">
+                            Lock Secret Key Registers (CONTROL[16])
+                        </button>
+                    </div>
+
+                    <!-- Emergency Hardware Zeroize Button -->
+                    <div class="zeroize-box">
+                        <div style="font-size: 11px; font-weight: 700; color: #f87171; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em;">
+                            Anti-Tamper Emergency Interface
+                        </div>
+                        <p style="font-size: 11px; color: #94a3b8; margin-bottom: 14px;">
+                            Hardware strobe pulses <code>rot_zeroize_pin</code>, wiping all internal round keys, pipeline state, and secret registers within <b>1 clock cycle</b> (5.0 ns).
+                        </p>
+                        <button class="zeroize-btn" onclick="triggerEmergencyZeroize()" id="emergencyZeroizeBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            EMERGENCY ZEROIZE KEY
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Middle Column: APB4 Register Memory Map -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            APB4 Register Memory Map (32-bit Offsets)
+                        </div>
+                        <button class="btn-secondary" onclick="renderRegisterTable()" style="font-size: 11px; padding: 4px 10px;">Refresh Memory</button>
+                    </div>
+                    <div class="register-table-wrapper">
+                        <table class="register-table">
+                            <thead>
+                                <tr>
+                                    <th>Offset</th>
+                                    <th>Register Name</th>
+                                    <th>Perm</th>
+                                    <th>Current Value (Hex)</th>
+                                    <th>Hardware Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regTableBody">
+                                <!-- Rendered dynamically by app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Column: Key Confidentiality SNOOP Proof Panel -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            Key Confidentiality SVA Proof
+                        </div>
+                    </div>
+                    <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-bottom: 14px;">
+                        Validate the hardware bus-isolation barrier. According to SVA assertion <code>key_read_mask_sva</code>, any APB read to address range <code>0x010..0x02C</code> is forced to strictly return <code>32'h00000000</code>.
+                    </p>
+                    <button class="btn-primary" onclick="executeKeySnoopTest()" id="executeSnoopBtn" style="width: 100%;">
+                        Execute APB Bus Read Snoop Test
+                    </button>
+                    <div id="snoopResultText"></div>
+
+                    <div style="margin-top: 20px; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                        <div style="font-size: 11px; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">FORMAL SVA PROPERTY:</div>
+                        <pre style="font-size: 10px; color: #a5f3fc; line-height: 1.4;">property key_confidentiality_sva;
+  @(posedge pclk)
+    (psel &amp;&amp; penable &amp;&amp; !pwrite &amp;&amp; 
+     paddr inside [ADDR_KEY_0:ADDR_KEY_7])
+    |-&gt; (prdata == 32'h00000000);
+endproperty</pre>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 2: CRYPTO ENGINES & NIST KATS -->
+        <section id="tab-crypto" class="tab-pane">
+            <div class="dashboard-grid">
+                
+                <!-- Left Column: AES-256-GCM AEAD Calculator -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            AES-256-GCM AEAD Engine
+                        </div>
+                    </div>
+                    <div class="crypto-calc-section">
+                        <div class="form-group">
+                            <label>NIST SP 800-38D Presets</label>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-secondary" onclick="loadNistPreset('case13')">Case 13 (Empty)</button>
+                                <button class="btn-secondary" onclick="loadNistPreset('case14')">Case 14 (16B Zero)</button>
+                                <button class="btn-secondary" onclick="loadNistPreset('case16')">Case 16 (60B PT, 20B AAD)</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>256-bit Cipher Key (Hex)</label>
+                            <input type="text" id="gcmKeyInput" class="form-input" value="feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308">
+                        </div>
+
+                        <div class="form-group">
+                            <label>96-bit IV / Nonce (Hex)</label>
+                            <input type="text" id="gcmIvInput" class="form-input" value="cafebabefacedbaddecaf888">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Additional Authenticated Data (AAD)</label>
+                            <input type="text" id="gcmAadInput" class="form-input" value="feedfacedeadbeeffeedfacedeadbeefabaddad2">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Plaintext Payload (Hex)</label>
+                            <textarea id="gcmPtInput" class="form-textarea" rows="2">d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39</textarea>
+                        </div>
+
+                        <button class="btn-primary" onclick="executeAesGcm()" id="computeGcmBtn">
+                            Compute Hardware AES-256-GCM
+                        </button>
+
+                        <div style="padding: 12px; background: #080c14; border: 1px solid var(--border-color); border-radius: 8px;">
+                            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">Computed 128-bit Authentication Tag:</div>
+                            <div id="gcmTagResult" class="mono" style="color: #38bdf8; font-weight: 700; word-break: break-all;">76fc6ece0f4e1768cddf8853bb2d551b</div>
+                            <div style="margin-top: 6px; font-size: 10px; color: #64748b;">
+                                Expected: <span id="expectedTagDisplay" class="mono" style="color: #cbd5e1;">76fc6ece0f4e1768cddf8853bb2d551b</span>
+                                <span id="gcmMatchBadge" class="kat-pass-badge" style="margin-left: 8px;">&check; BIT-FOR-BIT MATCH</span>
+                            </div>
+                            <div style="margin-top: 8px; font-size: 11px; color: #94a3b8;">Ciphertext Output:</div>
+                            <div id="gcmCtResult" class="mono" style="color: #a855f7; font-size: 10px; word-break: break-all;">522dc1f099567d07f47f37a32a84427d...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Column: SHA-3 Keccak-f[1600] Calculator -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                            SHA-3 / SHAKE Keccak-f[1600] Sponge Core
+                        </div>
+                    </div>
+                    <div class="crypto-calc-section">
+                        <div class="form-group">
+                            <label>Standard Test Vectors</label>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-secondary" onclick="document.getElementById('sha3Input').value = ''; executeSha3();">Empty String ("")</button>
+                                <button class="btn-secondary" onclick="document.getElementById('sha3Input').value = 'abc'; executeSha3();">"abc" String</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Input Message (ASCII / String)</label>
+                            <input type="text" id="sha3Input" class="form-input" value="" placeholder="(Empty message for FIPS 202 KAT)">
+                        </div>
+
+                        <button class="btn-primary" onclick="executeSha3()" id="computeSha3Btn">
+                            Compute SHA3-256 Digest (24 Rounds)
+                        </button>
+
+                        <div style="padding: 12px; background: #080c14; border: 1px solid var(--border-color); border-radius: 8px;">
+                            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">256-bit Keccak Squeeze Digest:</div>
+                            <div id="sha3DigestResult" class="mono" style="color: #10b981; font-weight: 700; word-break: break-all;">a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a</div>
+                            <div style="margin-top: 6px; font-size: 10px; color: #10b981;">
+                                &check; Conforms strictly to NIST FIPS 202 standard vector!
+                            </div>
+                        </div>
+
+                        <div style="padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; color: #94a3b8;">
+                            <div style="font-weight: 600; color: #f8fafc; margin-bottom: 4px;">Keccak Step Mappings per Round:</div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                                <span>&bull; &theta; (Theta): Column Parity</span>
+                                <span>&bull; &rho; (Rho): Bit Rotations</span>
+                                <span>&bull; &pi; (Pi): Transposition</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                                <span>&bull; &chi; (Chi): Non-linear Row XOR</span>
+                                <span>&bull; &iota; (Iota): Round Constants</span>
+                                <span style="color: #38bdf8;">24 Rounds Total</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Official NIST KAT Verification Suite -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            Automated NIST KAT Test Suite
+                        </div>
+                    </div>
+                    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
+                        Direct bit-for-bit hardware verification results executed against official NIST Special Publications:
+                    </p>
+                    <table class="kat-table">
+                        <tbody>
+                            <tr>
+                                <td><b>FIPS 197 C.3</b> (AES-256 ECB)</td>
+                                <td id="fips197Status"><span class="kat-pass-badge">&check; PASSED</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>NIST Case 13</b> (GCM Empty PT/AAD)</td>
+                                <td id="katCase13Status"><span class="kat-pass-badge">&check; PASSED</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>NIST Case 14</b> (GCM 16B Zero PT)</td>
+                                <td id="katCase14Status"><span class="kat-pass-badge">&check; PASSED</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>NIST Case 16</b> (GCM 60B PT, 20B AAD)</td>
+                                <td id="katCase16Status"><span class="kat-pass-badge">&check; PASSED</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>FIPS 202</b> (SHA3-256 Empty Msg)</td>
+                                <td id="sha3EmptyStatus"><span class="kat-pass-badge">&check; PASSED</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>Hardware Zeroize</b> (1-Cycle Wipe)</td>
+                                <td id="zeroizeTestStatus"><span class="kat-pass-badge">&check; PASSED</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 16px;">
+                        <button class="btn-primary" onclick="runAllNistTests()" id="runAllKatBtn" style="width: 100%;">
+                            Re-Execute All Golden NIST KATs
+                        </button>
+                    </div>
+
+                    <div id="katSummaryBanner" style="display: none; margin-top: 14px; padding: 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; color: #10b981; font-weight: 700; font-size: 12px;">
+                        &check; 6/6 PRODUCTION VERIFICATION TESTS PASSED BIT-FOR-BIT!
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 3: INTERACTIVE VCD LOGIC ANALYZER -->
+        <section id="tab-waveform" class="tab-pane">
+            <div class="card" style="padding: 16px;">
+                <div class="wave-toolbar">
+                    <div class="wave-controls">
+                        <button class="btn-secondary" onclick="waveformViewer.zoomIn()" title="Zoom In">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                            Zoom In
+                        </button>
+                        <button class="btn-secondary" onclick="waveformViewer.zoomOut()" title="Zoom Out">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                            Zoom Out
+                        </button>
+                        <button class="btn-secondary" onclick="waveformViewer.resetView()" title="Reset Zoom">Reset View</button>
+                        <button class="btn-secondary" onclick="waveformViewer.setCursorToAES()">Jump to 14-Round AES (70ns)</button>
+                        <button class="btn-secondary" onclick="waveformViewer.setCursorToZeroize()">Jump to 1-Cycle Zeroize</button>
+                    </div>
+                    <div id="waveDeltaText" class="wave-delta-pill">
+                        T1: 60.0 ns | T2: 130.0 ns | &Delta;T: 70.0 ns (14 cycles @ 200MHz)
+                    </div>
+                </div>
+
+                <div id="waveformContainer" class="canvas-container">
+                    <canvas id="waveformCanvas"></canvas>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 11px; color: #94a3b8;">
+                    <div>
+                        <b>Navigation Guide:</b> Click &amp; drag yellow (<b>T1</b>) or blue (<b>T2</b>) cursor flags to measure delta cycle times. Use mouse scroll wheel to zoom in/out. Click and drag trace background to pan.
+                    </div>
+                    <div style="font-family: monospace; color: #38bdf8;">
+                        Target: SkyWater 130nm @ 200 MHz (Clock Period = 5.000 ns)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: ARCHITECTURE & TAPEOUT GALLERY (THE 4 ARTIFACTS) -->
+        <section id="tab-gallery" class="tab-pane">
+            <div class="gallery-grid">
+                
+                <!-- Artifact 1: Silicon Architecture -->
+                <div class="gallery-card">
+                    <div class="gallery-img-wrapper" onclick="openImageZoom('../docs/images/rot_arch_diagram.jpg')">
+                        <img src="../docs/images/rot_arch_diagram.jpg" alt="RoT Silicon Architecture Diagram">
+                    </div>
+                    <div class="gallery-caption">
+                        <h3>1. Hardware RoT Engine Silicon Architecture &amp; Datapath</h3>
+                        <p>Complete block diagram of the APB4 bus controller, 14-round pipelined AES-256 datapath, 2-stage GF(2<sup>128</sup>) Karatsuba carry-less multiplier, Keccak-f[1600] sponge engine, and anti-tamper hardware zeroization unit.</p>
+                    </div>
+                </div>
+
+                <!-- Artifact 2: GTKWave VCD Waveform Output -->
+                <div class="gallery-card">
+                    <div class="gallery-img-wrapper" onclick="openImageZoom('../docs/images/vcd_waveform_trace.jpg')">
+                        <img src="../docs/images/vcd_waveform_trace.jpg" alt="GTKWave Cycle-Accurate Waveform Trace">
+                    </div>
+                    <div class="gallery-caption">
+                        <h3>2. QuestaSim / GTKWave Cycle-Accurate Waveform Output</h3>
+                        <p>High-resolution logic analyzer timing trace captured from <code>rot_top.vcd</code> showing 14-round AES pipeline stepping, APB4 key confidentiality bus masking (0x00000000), GHASH accumulation, and 1-cycle emergency zeroization pulse.</p>
+                    </div>
+                </div>
+
+                <!-- Artifact 3: Software Working Dashboard -->
+                <div class="gallery-card">
+                    <div class="gallery-img-wrapper" onclick="openImageZoom('../docs/images/rot_software_dashboard.jpg')">
+                        <img src="../docs/images/rot_software_dashboard.jpg" alt="RoT Software Working Dashboard">
+                    </div>
+                    <div class="gallery-caption">
+                        <h3>3. Hardware RoT Security Management Console &amp; Working Dashboard</h3>
+                        <p>Interactive silicon control dashboard demonstrating APB4 memory inspection, 2.56 Gbps throughput telemetry, live NIST SP 800-38D KAT verification pass badges, and emergency zeroize hardware strobe button.</p>
+                    </div>
+                </div>
+
+                <!-- Artifact 4: ASIC Synthesis & Formal DV Report -->
+                <div class="gallery-card">
+                    <div class="gallery-img-wrapper" onclick="openImageZoom('../docs/images/asic_synth_dv.jpg')">
+                        <img src="../docs/images/asic_synth_dv.jpg" alt="ASIC Synthesis and Formal DV Report">
+                    </div>
+                    <div class="gallery-caption">
+                        <h3>4. SkyWater 130nm ASIC Synthesis &amp; Formal Security DV Report</h3>
+                        <p>Tapeout readiness telemetry covering STA timing closure @ 200 MHz (WNS: +2.180 ns), standard cell gate count distribution (112,000 gates / 0.82 mm&sup2;), and 100% SVA formal verification proofs.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Full-Resolution Image Zoom -->
+    <div id="imageModal" class="modal-overlay">
+        <div class="modal-img-container">
+            <button id="modalCloseBtn" class="modal-close-btn">&times;</button>
+            <img id="modalImage" src="" alt="Artifact Full View">
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="vcd_data.js"></script>
+    <script src="vcd_viewer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

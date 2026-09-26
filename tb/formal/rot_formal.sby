@@ -1,0 +1,46 @@
+[options]
+mode prove
+depth 30
+wait on
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal -sv aes_sbox.sv
+read -formal -sv aes_inv_sbox.sv
+read -formal -sv aes_rcon.sv
+read -formal -sv aes_round.sv
+read -formal -sv aes_inv_round.sv
+read -formal -sv aes_key_expand_256.sv
+read -formal -sv aes_core.sv
+read -formal -sv gf_mul128.sv
+read -formal -sv ghash_core.sv
+read -formal -sv aes_gcm_top.sv
+read -formal -sv keccak_round_constants.sv
+read -formal -sv keccak_round.sv
+read -formal -sv keccak_f1600.sv
+read -formal -sv sha3_core.sv
+read -formal -sv rot_top.sv
+read -formal -sv rot_formal_props.sv
+read -formal -sv rot_formal_wrapper.sv
+prep -top rot_formal_wrapper
+
+[files]
+../../rtl/aes/aes_sbox.sv
+../../rtl/aes/aes_inv_sbox.sv
+../../rtl/aes/aes_rcon.sv
+../../rtl/aes/aes_round.sv
+../../rtl/aes/aes_inv_round.sv
+../../rtl/aes/aes_key_expand_256.sv
+../../rtl/aes/aes_core.sv
+../../rtl/ghash/gf_mul128.sv
+../../rtl/ghash/ghash_core.sv
+../../rtl/gcm/aes_gcm_top.sv
+../../rtl/sha3/keccak_round_constants.sv
+../../rtl/sha3/keccak_round.sv
+../../rtl/sha3/keccak_f1600.sv
+../../rtl/sha3/sha3_core.sv
+../../rtl/rot_top.sv
+rot_formal_props.sv
+rot_formal_wrapper.sv

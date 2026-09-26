@@ -1,0 +1,128 @@
+# vsim -c -do "run -all; quit -f" rot_uvm_tb_top "+UVM_TESTNAME=rot_nist_kat_test" 
+# Start time: 14:02:18 on Sep 26,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Warning: rtl/sha3/keccak_round.sv(17): (vopt-13314) Defaulting port 'state_in' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# //  Questa Sim-64
+# //  Version 10.7c win64 Aug 18 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.rot_apb_if(fast)
+# Loading mtiUvm.uvm_pkg
+# Loading work.rot_uvm_pkg(fast)
+# Loading work.rot_uvm_tb_top_sv_unit(fast)
+# Loading work.rot_uvm_tb_top(fast)
+# Loading work.aes_key_expand_256(fast)
+# Loading work.aes_sbox(fast)
+# Loading work.keccak_round(fast)
+# Loading mtiUvm.questa_uvm_pkg(fast)
+# Loading C:/questasim64_10.7c/uvm-1.1d\win64\uvm_dpi.dll
+# run -all
+# ----------------------------------------------------------------
+# UVM-1.1d
+# (C) 2007-2013 Mentor Graphics Corporation
+# (C) 2007-2013 Cadence Design Systems, Inc.
+# (C) 2006-2013 Synopsys, Inc.
+# (C) 2011-2013 Cypress Semiconductor Corp.
+# ----------------------------------------------------------------
+# 
+#   ***********       IMPORTANT RELEASE NOTES         ************
+# 
+#   You are using a version of the UVM library that has been compiled
+#   with `UVM_NO_DEPRECATED undefined.
+#   See http://www.eda.org/svdb/view.php?id=3313 for more details.
+# 
+#   You are using a version of the UVM library that has been compiled
+#   with `UVM_OBJECT_MUST_HAVE_CONSTRUCTOR undefined.
+#   See http://www.eda.org/svdb/view.php?id=3770 for more details.
+# 
+#       (Specify +UVM_NO_RELNOTES to turn off this notice)
+# 
+# UVM_INFO verilog_src/questa_uvm_pkg-1.2/src/questa_uvm_pkg.sv(215) @ 0: reporter [Questa UVM] QUESTA_UVM-1.2.3
+# UVM_INFO verilog_src/questa_uvm_pkg-1.2/src/questa_uvm_pkg.sv(216) @ 0: reporter [Questa UVM]  questa_uvm::init(+struct)
+# UVM_INFO @ 0: reporter [RNTST] Running test rot_nist_kat_test...
+# UVM_INFO @ 0: reporter [UVMTOP] UVM testbench topology:
+# --------------------------------------------------------------
+# Name                       Type                    Size  Value
+# --------------------------------------------------------------
+# uvm_test_top               rot_nist_kat_test       -     @471 
+#   env                      rot_env                 -     @478 
+#     agent                  rot_agent               -     @485 
+#       driver               rot_driver              -     @647 
+#         rsp_port           uvm_analysis_port       -     @662 
+#         seq_item_port      uvm_seq_item_pull_port  -     @654 
+#       monitor              rot_monitor             -     @523 
+#         mon_ap             uvm_analysis_port       -     @530 
+#       sequencer            rot_sequencer           -     @538 
+#         rsp_export         uvm_analysis_export     -     @545 
+#         seq_item_export    uvm_seq_item_pull_imp   -     @639 
+#         arbitration_queue  array                   0     -    
+#         lock_queue         array                   0     -    
+#         num_last_reqs      integral                32    'd1  
+#         num_last_rsps      integral                32    'd1  
+#     coverage               rot_coverage            -     @507 
+#       analysis_imp         uvm_analysis_imp        -     @514 
+#     scoreboard             rot_scoreboard          -     @492 
+#       sb_export            uvm_analysis_imp        -     @499 
+# --------------------------------------------------------------
+# 
+# UVM_INFO tb/uvm/rot_test.sv(41) @ 0: uvm_test_top [TEST] ==========================================================
+# UVM_INFO tb/uvm/rot_test.sv(42) @ 0: uvm_test_top [TEST]  STARTING NIST SP 800-38D & FIPS 197/202 KNOWN ANSWER TESTS
+# UVM_INFO tb/uvm/rot_test.sv(43) @ 0: uvm_test_top [TEST] ==========================================================
+# UVM_INFO tb/uvm/rot_test.sv(63) @ 0: uvm_test_top [TEST] Executing FIPS 197 C.3 AES-256 ECB Test...
+# UVM_INFO tb/uvm/rot_scoreboard.sv(26) @ 522500: uvm_test_top.env.scoreboard [rot_scoreboard] Evaluating transaction: op_type=OP_AES_ECB, key=0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f, iv=0x000000000000000000000000, aad_len=0, data_len=16
+# UVM_ERROR tb/uvm/rot_scoreboard.sv(75) @ 522500: uvm_test_top.env.scoreboard [BYTE_MISMATCH] Byte [0] Expected=0x8e, Actual=0x44
+# UVM_INFO tb/uvm/rot_test.sv(87) @ 522500: uvm_test_top [TEST] Executing NIST SP 800-38D Case 13 (AES-256-GCM)...
+# UVM_INFO tb/uvm/rot_scoreboard.sv(26) @ 1152500: uvm_test_top.env.scoreboard [rot_scoreboard] Evaluating transaction: op_type=OP_AES_GCM_ENC, key=0x0000000000000000000000000000000000000000000000000000000000000000, iv=0x000000000000000000000000, aad_len=0, data_len=0
+# UVM_INFO tb/uvm/rot_scoreboard.sv(98) @ 1152500: uvm_test_top.env.scoreboard [NIST_TAG_PASS] GCM Tag Verified Against NIST SP 800-38D: 0x530f8afbc74536b9a963b4f1c4cb738b
+# UVM_INFO tb/uvm/rot_test.sv(112) @ 1152500: uvm_test_top [TEST] Executing NIST SP 800-38D Case 14 (AES-256-GCM)...
+# UVM_INFO tb/uvm/rot_scoreboard.sv(26) @ 2017500: uvm_test_top.env.scoreboard [rot_scoreboard] Evaluating transaction: op_type=OP_AES_GCM_ENC, key=0x0000000000000000000000000000000000000000000000000000000000000000, iv=0x000000000000000000000000, aad_len=0, data_len=16
+# UVM_INFO tb/uvm/rot_scoreboard.sv(86) @ 2017500: uvm_test_top.env.scoreboard [PAYLOAD_PASS] Data payload verified (16 bytes matched golden vector)
+# UVM_INFO tb/uvm/rot_scoreboard.sv(98) @ 2017500: uvm_test_top.env.scoreboard [NIST_TAG_PASS] GCM Tag Verified Against NIST SP 800-38D: 0xd0d1c8a799996bf0265b98b5d48ab919
+# UVM_INFO tb/uvm/rot_test.sv(152) @ 2017500: uvm_test_top [TEST] Executing NIST SP 800-38D Case 16 (AES-256-GCM Authenticated Encrypt)...
+# UVM_INFO tb/uvm/rot_scoreboard.sv(26) @ 3787500: uvm_test_top.env.scoreboard [rot_scoreboard] Evaluating transaction: op_type=OP_AES_GCM_ENC, key=0xfeffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308, iv=0xcafebabefacedbaddecaf888, aad_len=20, data_len=60
+# UVM_INFO tb/uvm/rot_scoreboard.sv(86) @ 3787500: uvm_test_top.env.scoreboard [PAYLOAD_PASS] Data payload verified (60 bytes matched golden vector)
+# UVM_INFO tb/uvm/rot_scoreboard.sv(98) @ 3787500: uvm_test_top.env.scoreboard [NIST_TAG_PASS] GCM Tag Verified Against NIST SP 800-38D: 0x76fc6ece0f4e1768cddf8853bb2d551b
+# UVM_INFO tb/uvm/rot_test.sv(166) @ 3787500: uvm_test_top [TEST] Executing FIPS 202 SHA3-256 (Empty Message Vector)...
+# UVM_INFO tb/uvm/rot_scoreboard.sv(26) @ 4362500: uvm_test_top.env.scoreboard [rot_scoreboard] Evaluating transaction: op_type=OP_SHA3_256, key=0x0000000000000000000000000000000000000000000000000000000000000000, iv=0x000000000000000000000000, aad_len=0, data_len=0
+# UVM_ERROR tb/uvm/rot_scoreboard.sv(51) @ 4362500: uvm_test_top.env.scoreboard [SHA3_DIGEST_MISMATCH] Expected=0xa7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a, Actual=0x80f8434a82d80a4be43b49faf580ff4da061d66251c14756bf1ed766a7ffc6f8
+# UVM_INFO verilog_src/uvm-1.1d/src/base/uvm_objection.svh(1267) @ 4362500: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+# ** Warning: (vsim-PLI-3070) $sformatf : Too many arguments.
+#    Time: 4362500 ps  Iteration: 38  Process: /uvm_pkg::uvm_phase::m_run_phases/#FORK#1847_4f6327f7 File: tb/uvm/rot_scoreboard.sv Line: 104
+# UVM_INFO tb/uvm/rot_scoreboard.sv(104) @ 4362500: uvm_test_top.env.scoreboard [SCOREBOARD_SUMMARY] 
+# =zzzzzzzöööÃÈŒöœ–«öÕ›ÈÏﬂ‹È€Ïﬁ€1@£˚-8
+# 0oŒvç&Ñø	Çk£íy          5          5          2                         77246216553796
+# 
+# --- UVM Report Summary ---
+# 
+# ** Report counts by severity
+# UVM_INFO :   24
+# UVM_WARNING :    0
+# UVM_ERROR :    2
+# UVM_FATAL :    0
+# ** Report counts by id
+# [BYTE_MISMATCH]     1
+# [NIST_TAG_PASS]     3
+# [PAYLOAD_PASS]     2
+# [Questa UVM]     2
+# [RNTST]     1
+# [SCOREBOARD_SUMMARY]     1
+# [SHA3_DIGEST_MISMATCH]     1
+# [TEST]     8
+# [TEST_DONE]     1
+# [UVMTOP]     1
+# [rot_scoreboard]     5
+# ** Note: $finish    : C:/questasim64_10.7c/win64/../verilog_src/uvm-1.1d/src/base/uvm_root.svh(430)
+#    Time: 4362500 ps  Iteration: 56  Instance: /rot_uvm_tb_top
+# End time: 14:02:23 on Sep 26,2026, Elapsed time: 0:00:05
+# Errors: 0, Warnings: 2
