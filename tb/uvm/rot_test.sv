@@ -42,6 +42,10 @@ class rot_nist_kat_test extends rot_base_test;
         `uvm_info("TEST", " STARTING NIST SP 800-38D & FIPS 197/202 KNOWN ANSWER TESTS", UVM_LOW)
         `uvm_info("TEST", "==========================================================", UVM_LOW)
 
+        // Wait for system reset to deassert and clock to stabilize
+        @(posedge env.agent.driver.vif.presetn);
+        repeat (5) @(env.agent.driver.vif.drv_cb);
+
         // =====================================================================
         // TEST VECTOR 1: FIPS 197 Appendix C.3 (AES-256 ECB Mode)
         // Key: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f

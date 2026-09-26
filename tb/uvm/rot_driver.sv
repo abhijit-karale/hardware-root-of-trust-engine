@@ -87,6 +87,12 @@ class rot_driver extends uvm_driver #(rot_seq_item);
 
         `uvm_info(get_type_name(), $sformatf("Driving transaction: %s", item.convert2string()), UVM_HIGH)
 
+        // Ensure DUT reset is complete and clocking has settled
+        if (!vif.presetn) begin
+            @(posedge vif.presetn);
+            repeat (5) @(vif.drv_cb);
+        end
+
         if (item.op_type == OP_ZEROIZE) begin
             // Pulse physical zeroize pin
             @(vif.drv_cb);
